@@ -6,21 +6,18 @@ export default StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    body: {
-        flex: 0,  
+    inner: {
         alignItems: 'center',
-        justifyContent: 'center',
+    },
+    background: {
+        flex: 1,
+        backgroundColor: '#000',
     },
     text: {
         color: '#000',
         fontSize: 20,
         fontStyle: 'italic',
         margin: 10,
-    },
-    background: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'center',
     },
     image: {
         width: 200,

@@ -1,50 +1,104 @@
-import { React, useState } from 'react';
+import { React, useState, useEffect, useCallback } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
 import { ImageBackground, Text, View, Image, TouchableOpacity, TextInput } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
-
+import ContactsList from '../../services/sqlite/Contacts';
+import ChatsList from '../../services/sqlite/Chat';
+import MessagesList from '../../services/sqlite/Messages';
 import styles from './styles';
 
 export default function Contacts({route}) {
 
     const navigation = useNavigation();
     const [name, setName] = useState('');
-    const [searchTab, SetSearchTab] = useState(false);
-    const [moreTab, SetMoreTab] = useState(false);
+    const [searchTab, setSearchTab] = useState(false);
+    const [moreTab, setMoreTab] = useState(false);
+    const [contactChange, setContactChange] = useState(false);
+    const [paramChange, setParamChange] = useState(false);
+    const [contactData, setcontactData] = useState();
+    const [chatData, setChatData] = useState();
+    const [participantsData, setParticipantsData] = useState();
     const { userName } = route.params;
+    let participantsNav = [];
 
-    function navigateToChat() {
-        SetSearchTab(false);
-        SetMoreTab(false);
-        navigation.navigate('Chat');
+
+    function handleContactList() {
+        ChatsList.allChat()
+            .then( contact => setcontactData(contact) )
+            .catch( err => console.log(err) )
+        handleContactChange()
+    };
+
+    useFocusEffect(useCallback(() => handleContactList(), []))
+    //useEffect(() => handleContactList(), [])
+    //useEffect(() => console.log(contactData), [])
+    useEffect(() => handleContactSearch(name), [name])
+    //useEffect(() => navigateToChat(chatData), [paramChange])
+
+    function handleContactSearch(contactName) {
+        ChatsList.findChatName(contactName)
+            .then( contact => setcontactData(contact) )
+            .catch( err => console.log(err) )
+        if(name == ""){
+            handleContactList()
+        }
+        handleContactChange()
+    }
+
+    function navigateToChat(item) {
+        setSearchTab(false);
+        setMoreTab(false);
+        //if(paramChange == false) {
+        MessagesList.findParticipants(item.chatID)
+            //.then( participants => setParticipantsData({...participantsData, participants}) )
+            .then( participants => console.log(participants) )
+            //.then( participants => participantsNav = participants )
+            .catch( err => console.log(err) )
+        //}
+        setChatData(item)
+        //if(paramChange == true) {
+            navigation.navigate('Chat', {item, participantsData});
+        //}
+        setParamChange(!paramChange)
     }
 
     function navigateToConfigurations() {
-        SetSearchTab(false);
-        SetMoreTab(false);
+        setSearchTab(false);
+        setMoreTab(false);
         navigation.navigate('Configurations');
     }
 
     function navigateToAllContacts() {
-        SetSearchTab(false);
-        SetMoreTab(false);
+        setSearchTab(false);
+        setMoreTab(false);
+        setContactChange(!contactChange);
         navigation.navigate('AllContacts');
     }
 
     function navigateToProfile() {
-        SetSearchTab(false);
-        SetMoreTab(false);
+        setSearchTab(false);
+        setMoreTab(false);
         navigation.navigate('Profile', {userName});
     }
 
     function openMoreMenu() {
-        SetMoreTab(!moreTab);
+        setMoreTab(!moreTab);
     }
 
     function openSearch() {
-        SetSearchTab(!searchTab);   
+        setSearchTab(!searchTab);
+        if(searchTab == false){
+            handleContactList()
+        }
+        else{
+           setName("") 
+        }   
+    }
+
+    function handleContactChange() {
+        setContactChange(!contactChange)
     }
 
     return (
@@ -58,6 +112,7 @@ export default function Contacts({route}) {
                             placeholderTextColor={'white'}
                             onChangeText={(value) => setName(value)}
                             maxLength={25}
+                            autoCorrect={false}
                         />
                         :
                         null
@@ -70,13 +125,13 @@ export default function Contacts({route}) {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.contacts}>
-                    <FlatList data={[1, 2, 3, 4, 5, 6, 7]} keyExtractor={contact => String(contact)} showsVerticalScrollIndicator={false} renderItem={()=>(
-                        <TouchableOpacity style={styles.contactInfo} onPress={navigateToChat}>
-                            <Image source={require("../../assets/SkullPicture.png")} 
+                    <FlatList data={contactData} keyExtractor={item => item.chatID} showsVerticalScrollIndicator={false} extraData={contactChange} renderItem={({item})=>(
+                        <TouchableOpacity style={styles.contactInfo} onPress={() => navigateToChat(item)}>
+                            <Image source={{uri: "/Users/bernardoleal/Desenvolvimento/NaviApp/src"+item.chatPicture}} 
                                 resizeMode="stretch" 
                                 style={styles.image}>
                             </Image>
-                            <Text style={styles.contactName}>Ryuji Sakamoto</Text>
+                            <Text style={styles.contactName}>{item.chatName}</Text>
                         </TouchableOpacity>
                     )}/>
                 </View>

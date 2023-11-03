@@ -3,6 +3,7 @@ import { Text, View, ImageBackground, Image, Alert, TouchableOpacity } from 'rea
 import { useNavigation } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 
+import db from '../../../openDatabase';
 import styles from './styles';
 
 export default function Profile({route}) {

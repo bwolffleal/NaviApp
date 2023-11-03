@@ -1,25 +1,86 @@
-import { React, useState, setState } from 'react';
+import { React, useState, useCallback, useEffect } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
-import { ImageBackground, Text, View, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { ImageBackground, Text, View, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import uuid from 'react-native-uuid';
 
+import MessagesList from '../../services/sqlite/Messages';
 import styles from './styles';
 
-export default function Chat() {
+export default function Chat({route}) {
 
     const navigation = useNavigation();
     const [message, setMessage] = useState('');
+    const [messageData, setMessageData] = useState();
+    const [participantsData, setParticipantsData] = useState([]);
+    const [textInputHeight, setTextInputHeight] = useState(30);
+    const [messagesChange, setMessagesChange] = useState(false);
+    //const [loadIDS, setLoadIDS] = useState(false);
+    //const chatID = "5f62335a-9daf-4759-aa70-6f8c1923076f";
+    //const { chatID } = route.params;
+    const { item, item2 } = route.params;
+    //let participantsD = []
 
     function navigateBack() {
       navigation.goBack();
     }
 
+    function showChatMessages(ID) {
+        setMessagesChange(!messagesChange)
+        MessagesList.findMessages(ID)
+            .then(message => setMessageData(message))
+            .catch(err => console.log(err))
+        MessagesList.findParticipants(ID)
+            .then( participants => setParticipantsData(participants) )
+            //.then( participants => participantsD = participants )
+            .catch( err => console.log(err) )
+        //console.log(participantsD)
+        //showMessagesChange()
+        //console.log(item)
+        //console.log(item2)
+    }
+
+    function showMessagesChange() {
+        console.log(participantsData)
+        MessagesList.findMessages(item.chatID)
+            .then(message => setMessageData(message))
+            .catch(err => console.log(err))
+    }
+
+    function handleMessage(text, newChatParticipants, newMessageID, time, chatID) {
+        if(text.length != 0) {
+            MessagesList.createMessages({
+                newMessageID,
+                newChatParticipants,
+                chatID,
+                text,
+                time,
+            })
+            setMessage("")
+            setMessagesChange(!messagesChange)
+            //Keyboard.dismiss()
+        }
+    }
+
+    function isUser(id) {
+        if(id == "1") {
+            return false
+        } else{
+            return true
+        }
+    }
+
+    useEffect(() => showChatMessages(item.chatID), [])
+    useEffect(() => showMessagesChange(), [messagesChange])
+
+    const textInputStyle = useCallback(() => { return {...styles.input, height: Math.max(textInputHeight, 30)}}, [textInputHeight])
+    
     return (
         <ImageBackground source={require("../../assets/Background.png")} resizeMode="stretch" style={styles.background}>
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <FlatList data={[1]} keyExtractor={contact => String(contact)} showsHorizontalScrollIndicator={false} horizontal={true} renderItem={()=>(
+                    <FlatList data={[1]} keyExtractor={contact => String(contact)} showsHorizontalScrollIndicator={false} extraData={participantsData} horizontal={true} renderItem={()=>(
                         <View style={styles.participants}>
                             <Image source={require("../../assets/JokerPicture.png")} 
                                 resizeMode="stretch" 
@@ -36,37 +97,42 @@ export default function Chat() {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.messages}>
-                    <FlatList data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} keyExtractor={message => String(message)} initialNumToRender={20} inverted contentContainerStyle={{ flexDirection: 'column-reverse' }} renderItem={()=>(
+                    <FlatList data={messageData} keyExtractor={item => item.newMessageID} initialNumToRender={20} inverted extraData={messageData} contentContainerStyle={{ flexDirection: 'column-reverse' }} renderItem={({item})=>(
                         <View style={styles.chat}>
-                            <View style={styles.userChatbox}>
-                                <Text style={styles.userMessage}>Text Text Text Text Text</Text>
-                                <Image source={require("../../assets/JokerPicture.png")} 
-                                    resizeMode="stretch" 
-                                    style={styles.userImage}>
-                                </Image>
-                            </View>
+                            {isUser(item.newChatParticipants) ?
                             <View style={styles.friendChatbox}>
                                 <Image source={require("../../assets/SkullPicture.png")} 
                                     resizeMode="stretch" 
                                     style={styles.friendImage}>
                                 </Image>
-                                <Text style={styles.friendMessage}>Text Text Text</Text>
+                                <Text style={styles.friendMessage}>{item.text} ({item.time})</Text>
                             </View>
+                            :
+                            <View style={styles.userChatbox}>
+                                <Text style={styles.userMessage}>{item.text} ({item.time})</Text>
+                                <Image source={require("../../assets/JokerPicture.png")} 
+                                    resizeMode="stretch" 
+                                    style={styles.userImage}>
+                                </Image>
+                            </View>                            
+                            }
                         </View>
                     )}/>
                 </View>
-                <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} style={styles.textBox}>
+                <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === 'ios' ? -34 : 0} style={styles.textBox}>
                     <TextInput 
-                        style={styles.input} 
+                        style={textInputStyle()} 
                         placeholder='Message' 
                         placeholderTextColor={'black'}
                         textAlignVertical='top'
-                        multiline='true'
-                        //onContentSizeChange={(event)=>{this.setState({height: event.nativeEvent.contentSize.height})}}
-                        textBreakStrategy='simple'
-                        onChangeText={(value) => setMessage(value)}
+                        multiline={true}
+                        scrollEnabled={true}
+                        onContentSizeChange={event => {setTextInputHeight(event.nativeEvent.contentSize.height)}}
+                        lineBreakStrategyIOS='push-out'
+                        value={message}
+                        onChangeText={(message) => setMessage(message)}
                     />
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleMessage(message, "1", uuid.v4(), new Date().getHours()+':'+('0'+new Date().getMinutes()).slice(-2), item.chatID)}>
                         <Feather name='send' size={30} color='#fff'/>
                     </TouchableOpacity>
                 </KeyboardAvoidingView>
