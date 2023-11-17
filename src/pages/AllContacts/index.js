@@ -175,7 +175,7 @@ export default function AllContacts() {
                     }
                     <FlatList data={contactData} keyExtractor={item => item.contactID} showsVerticalScrollIndicator={false} extraData={contactChange} renderItem={({item})=>(
                         <TouchableOpacity style={styles.contactInfo} onPress={()=>toggleItem(item.contactID)}>
-                            <Image source={{uri: "/Users/bernardoleal/Desenvolvimento/NaviApp/src"+item.picture}} 
+                            <Image source={{uri: "/Users/bernardoleal/Desenvolvimento/GitHub/NaviApp/src"+item.picture}} 
                                 resizeMode="stretch" 
                                 style={styles.image}>
                             </Image>
