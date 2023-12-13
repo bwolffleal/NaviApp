@@ -127,7 +127,7 @@ export default function Contacts({route}) {
                 <View style={styles.contacts}>
                     <FlatList data={contactData} keyExtractor={item => item.chatID} showsVerticalScrollIndicator={false} extraData={contactChange} renderItem={({item})=>(
                         <TouchableOpacity style={styles.contactInfo} onPress={() => navigateToChat(item)}>
-                            <Image source={{uri: "/Users/bernardoleal/Desenvolvimento/GitHub/NaviApp/src"+item.chatPicture}} 
+                            <Image source={item.chatPicture} 
                                 resizeMode="stretch" 
                                 style={styles.image}>
                             </Image>

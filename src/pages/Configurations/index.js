@@ -45,7 +45,7 @@ export default function Configurations() {
     }
 
     function newUserName(name){
-        const picture = '/assets/JokerPicture.png';
+        const picture = require("../../assets/JokerPicture.png");
         const newName = {
           name,
           picture,

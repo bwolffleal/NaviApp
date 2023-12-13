@@ -33,7 +33,7 @@ export default function Login() {
     function newContact(){
       const contactID = "1";//uuid.v4();
       const contactName = 'User';
-      const contactPicture = '/assets/JokerPicture.png';
+      const contactPicture = require("../../assets/JokerPicture.png");
       const newData = {
         contactID,
         contactName,
@@ -47,9 +47,9 @@ export default function Login() {
       Contacts.allContact()
         .then( contact => console.log(contact) )
         .catch( err => console.log(err) )
-      Chats.allChat()
-        .then( contact => console.log(contact) )
-        .catch( err => console.log(err) )
+      //Chats.allChat()
+      //  .then( contact => console.log(contact) )
+      //  .catch( err => console.log(err) )
       Messages.allMessages()
         .then( contact => console.log(contact) )
         .catch( err => console.log(err) )
@@ -61,7 +61,7 @@ export default function Login() {
     }
 
     function newUserName(name){
-      const picture = '/assets/JokerPicture.png';
+      const picture = require("../../assets/JokerPicture.png");
       const newName = {
         name,
         picture,

@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import uuid from 'react-native-uuid';
 
 import MessagesList from '../../services/sqlite/Messages';
+import ContactsList from '../../services/sqlite/Contacts';
 import styles from './styles';
 
 export default function Chat({route}) {
@@ -14,12 +15,13 @@ export default function Chat({route}) {
     const [message, setMessage] = useState('');
     const [messageData, setMessageData] = useState();
     const [participantsData, setParticipantsData] = useState([]);
+    const [participantsPicture, setParticipantsPicture] = useState([]);
     const [textInputHeight, setTextInputHeight] = useState(30);
     const [messagesChange, setMessagesChange] = useState(false);
     //const [loadIDS, setLoadIDS] = useState(false);
     //const chatID = "5f62335a-9daf-4759-aa70-6f8c1923076f";
     //const { chatID } = route.params;
-    const { item, item2 } = route.params;
+    const { item } = route.params;
     //let participantsD = []
 
     function navigateBack() {
@@ -39,6 +41,7 @@ export default function Chat({route}) {
         //showMessagesChange()
         //console.log(item)
         //console.log(item2)
+        seeImage()
     }
 
     function showMessagesChange() {
@@ -64,15 +67,24 @@ export default function Chat({route}) {
     }
 
     function isUser(id) {
-        if(id == "1") {
+        if(id === "1") {
             return false
         } else{
             return true
         }
     }
 
+    function seeImage() {
+        //console.log(participantsData[0].newChatParticipants)
+        //ContactsList.findContactPicture(participantsData[0].newChatParticipants)
+        ContactsList.findContactPicture(participantsData)
+            .then( picture => setParticipantsPicture( picture.picture ) )
+            .catch( err => console.log(err) )
+    }
+
     useEffect(() => showChatMessages(item.chatID), [])
     useEffect(() => showMessagesChange(), [messagesChange])
+    //useEffect(() => seeImage(), [])
 
     const textInputStyle = useCallback(() => { return {...styles.input, height: Math.max(textInputHeight, 30)}}, [textInputHeight])
     
@@ -86,7 +98,7 @@ export default function Chat({route}) {
                                 resizeMode="stretch" 
                                 style={styles.participantsImage}>
                             </Image>
-                            <Image source={require("../../assets/SkullPicture.png")} 
+                            <Image source={participantsPicture} 
                                 resizeMode="stretch" 
                                 style={styles.participantsImage}>
                             </Image>
@@ -101,7 +113,7 @@ export default function Chat({route}) {
                         <View style={styles.chat}>
                             {isUser(item.newChatParticipants) ?
                             <View style={styles.friendChatbox}>
-                                <Image source={require("../../assets/SkullPicture.png")} 
+                                <Image source={participantsPicture} 
                                     resizeMode="stretch" 
                                     style={styles.friendImage}>
                                 </Image>
