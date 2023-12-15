@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator, DrawerContent } from '@react-navigation/drawer';
 
 const AppStack = createStackNavigator();
-const Drawer = createDrawerNavigator();
+//const Drawer = createDrawerNavigator();
 
 import Login from './pages/Login';
 import Contacts from './pages/Contacts';
@@ -12,6 +12,7 @@ import Chat from './pages/Chat';
 import Configurations from './pages/Configurations';
 import AllContacts from './pages/AllContacts';
 import Profile from './pages/Profile';
+import Register from './pages/Register';
 
 export default function Routes() {
     return (
@@ -23,6 +24,7 @@ export default function Routes() {
                 <AppStack.Screen name="Configurations" component={Configurations} />
                 <AppStack.Screen name="AllContacts" component={AllContacts} />
                 <AppStack.Screen name="Profile" component={Profile} />
+                <AppStack.Screen name="Register" component={Register} />
             </AppStack.Navigator>
         </NavigationContainer>
     );

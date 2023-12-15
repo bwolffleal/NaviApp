@@ -58,8 +58,10 @@ export default function Configurations() {
     function handleDeleteChat() {
         console.log('deleted')
         setDeleteTab(!deleteTab)
-        //Chats.deleteAll()
-        //Messages.deleteAll()
+        MessagesList.deleteAll()
+        MessagesList.createTBMessages()
+        ChatsList.deleteAll()
+        ChatsList.createTBChat()
     }
 
     return (

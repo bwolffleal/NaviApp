@@ -2,19 +2,20 @@ import { React, useState, useCallback, useEffect } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
 import { ImageBackground, Text, View, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import uuid from 'react-native-uuid';
 
 import MessagesList from '../../services/sqlite/Messages';
 import ContactsList from '../../services/sqlite/Contacts';
 import styles from './styles';
+import { set } from 'react-native-reanimated';
 
 export default function Chat({route}) {
 
     const navigation = useNavigation();
     const [message, setMessage] = useState('');
     const [messageData, setMessageData] = useState();
-    const [participantsData, setParticipantsData] = useState([]);
+    const [participantsData, setParticipantsData] = useState([{ newChatParticipants: '' }]);
     const [participantsPicture, setParticipantsPicture] = useState([]);
     const [textInputHeight, setTextInputHeight] = useState(30);
     const [messagesChange, setMessagesChange] = useState(false);
@@ -76,15 +77,20 @@ export default function Chat({route}) {
 
     function seeImage() {
         //console.log(participantsData[0].newChatParticipants)
-        //ContactsList.findContactPicture(participantsData[0].newChatParticipants)
-        ContactsList.findContactPicture(participantsData)
-            .then( picture => setParticipantsPicture( picture.picture ) )
-            .catch( err => console.log(err) )
+        for(let i = 0; i < participantsData.length-1; i++) {
+            ContactsList.findContactPicture(participantsData[i].newChatParticipants)
+            //ContactsList.findContactPicture(participantsData)
+                .then( picture => setParticipantsPicture(picture.picture) )
+                .catch( err => console.log(err) )
+            //setParticipantsPicture(...participantsPicture, participantsPicture)
+            console.log(participantsPicture)
+        }
+        //console.log(participantsPicture[0])
     }
 
     useEffect(() => showChatMessages(item.chatID), [])
     useEffect(() => showMessagesChange(), [messagesChange])
-    //useEffect(() => seeImage(), [])
+    useEffect(() => seeImage(), [participantsData])
 
     const textInputStyle = useCallback(() => { return {...styles.input, height: Math.max(textInputHeight, 30)}}, [textInputHeight])
     

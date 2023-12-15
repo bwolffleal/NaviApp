@@ -8,11 +8,13 @@ import Chats from '../../services/sqlite/Chat';
 import Messages from '../../services/sqlite/Messages';
 import styles from './styles';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import PictureInit from '../../services/sqlite/PictureInit';
 
 export default function Login() {
 
     const navigation = useNavigation();
     const [name, setName] = useState('');
+    const [password, setPassword] = useState('');
     const [submitted, setSubmitted] = useState(false);
     //const [contactID, setContactID] = useState('');
     //const [contactName, setContactName] = useState('');
@@ -24,10 +26,14 @@ export default function Login() {
         setSubmitted(!submitted);
         navigation.navigate('Contacts', {userName});
       }else{
-        Alert.alert('Warning','You must put a name to continue', [
+        Alert.alert('Warning','You must put a valid name and password to continue', [
           {text: 'OK'}
         ])
       }
+    }
+
+    function navigateToRegister() {
+        navigation.navigate('Register');
     }
 
     function newContact(){
@@ -50,14 +56,14 @@ export default function Login() {
       //Chats.allChat()
       //  .then( contact => console.log(contact) )
       //  .catch( err => console.log(err) )
-      Messages.allMessages()
-        .then( contact => console.log(contact) )
-        .catch( err => console.log(err) )
+      //Messages.allMessages()
+      //  .then( contact => console.log(contact) )
+      //  .catch( err => console.log(err) )
       //Contacts.deleteAll()
       //Chats.createTBChat()
-      //Chats.deleteAll()
-      //Messages.createTBMessages()
-      //Messages.deleteAll()
+      // Chats.deleteAll()
+      // Messages.createTBMessages()
+      // Messages.deleteAll()
     }
 
     function newUserName(name){
@@ -72,6 +78,16 @@ export default function Login() {
     }
 
     useEffect(() => newContact(),[]);
+    useEffect(() => {
+      PictureInit.yusukeInit();
+      PictureInit.annInit();
+      PictureInit.ryujiInit();
+      PictureInit.annInit();
+      PictureInit.makotoInit();
+      PictureInit.futabaInit();
+      PictureInit.goroInit();
+      PictureInit.haruInit();
+    }, [])
 
     return (
         <ImageBackground source={require("../../assets/CleanBackground.png")} resizeMode="stretch" style={styles.background}>
@@ -95,9 +111,23 @@ export default function Login() {
                     maxLength={25}
                     autoCorrect={false}
                 />
+                <TextInput 
+                    style={styles.input} 
+                    placeholder='Enter your Password' 
+                    placeholderTextColor={'white'}
+                    onChangeText={(value) => setPassword(value)}
+                    maxLength={25}
+                    autoCorrect={false}
+                    secureTextEntry
+                />
                 <TouchableOpacity style={styles.button} onPress={() => navigateToContacts(name)}>
                   <Text style={styles.buttontext}>
                     Login
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={() => navigateToRegister()}>
+                  <Text style={styles.buttontext}>
+                    SignUp
                   </Text>
                 </TouchableOpacity>
               </View>
