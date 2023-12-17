@@ -8,9 +8,20 @@ export default function Register() {
     const navigation = useNavigation();
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
+    const [visible, setVisible] = useState(false);
     
     function navigateBack() {
         navigation.goBack();
+    }
+
+    function isVisible() {
+        setVisible(!visible)
+      }
+  
+    function isPasswordShown() {
+    if (visible){
+        return secureTextEntry;
+    }
     }
 
     function createUser(userName, userPassword) {
@@ -58,16 +69,23 @@ export default function Register() {
                         autoCorrect={false}
                         secureTextEntry
                     />
-                    <TouchableOpacity style={styles.button} onPress={() => {createUser(name, password)}}>
-                    <Text style={styles.buttontext}>
-                        Create
-                    </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={() => {navigateBack()}}>
-                    <Text style={styles.buttontext}>
-                        Back
-                    </Text>
-                    </TouchableOpacity>
+                    {visible ? 
+                    <Text onPress={()=>{isVisible()}}>Show Password</Text>
+                    :
+                    <Text onPress={()=>{isVisible()}}>Hide Password</Text>
+                    }
+                    <View style={styles.buttonLayout}>
+                        <TouchableOpacity style={styles.button} onPress={() => {createUser(name, password)}}>
+                            <Text style={styles.buttontext}>
+                                Create
+                            </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.button} onPress={() => {navigateBack()}}>
+                            <Text style={styles.buttontext}>
+                                Back
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </KeyboardAvoidingView>
         </ImageBackground>

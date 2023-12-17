@@ -48,4 +48,7 @@ export default StyleSheet.create({
         fontSize: 18,
         color: '#fff',
     },
+    buttonLayout: {
+        flexDirection: 'row-reverse',
+    },
 });

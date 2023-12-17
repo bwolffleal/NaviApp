@@ -16,6 +16,7 @@ export default function Login() {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [submitted, setSubmitted] = useState(false);
+    const [visible, setVisible] = useState(false);
     //const [contactID, setContactID] = useState('');
     //const [contactName, setContactName] = useState('');
     //const [contactPicture, setContactPicture] = useState('');
@@ -34,6 +35,16 @@ export default function Login() {
 
     function navigateToRegister() {
         navigation.navigate('Register');
+    }
+
+    function isVisible() {
+      setVisible(!visible)
+    }
+
+    function isPasswordShown() {
+      if (visible){
+        return secureTextEntry;
+      }
     }
 
     function newContact(){
@@ -120,16 +131,23 @@ export default function Login() {
                     autoCorrect={false}
                     secureTextEntry
                 />
-                <TouchableOpacity style={styles.button} onPress={() => navigateToContacts(name)}>
-                  <Text style={styles.buttontext}>
-                    Login
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={() => navigateToRegister()}>
-                  <Text style={styles.buttontext}>
-                    SignUp
-                  </Text>
-                </TouchableOpacity>
+                {visible ? 
+                  <Text onPress={()=>{isVisible()}}>Show Password</Text>
+                  :
+                  <Text onPress={()=>{isVisible()}}>Hide Password</Text>
+                }
+                <View style={styles.buttonLayout}>
+                  <TouchableOpacity style={styles.button} onPress={() => navigateToContacts(name)}>
+                    <Text style={styles.buttontext}>
+                      Login
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.button} onPress={() => navigateToRegister()}>
+                    <Text style={styles.buttontext}>
+                      SignUp
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </KeyboardAvoidingView>
         </ImageBackground>
