@@ -1,6 +1,9 @@
 import { React, useState } from "react";
 import { ImageBackground, View, KeyboardAvoidingView, Image, Text, TouchableOpacity, TextInput, Alert } from "react-native";
 import { useNavigation } from '@react-navigation/native';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
 import styles from './styles'
 
 export default function Register() {
@@ -8,7 +11,20 @@ export default function Register() {
     const navigation = useNavigation();
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(true);
+
+    var firebaseConfig = {
+        apiKey: "AIzaSyBrn8PcNGwMuMC3GTs9S75cWZwlAfQVoqg",
+        authDomain: "naviapp-48f99.firebaseapp.com",
+        projectId: "naviapp-48f99",
+        storageBucket: "naviapp-48f99.appspot.com",
+        messagingSenderId: "824854218169",
+        appId: "1:824854218169:web:a03fd81e56d01f42352268"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const fdb = getFirestore(app)
+    const auth = getAuth(app);
     
     function navigateBack() {
         navigation.goBack();
@@ -16,27 +32,35 @@ export default function Register() {
 
     function isVisible() {
         setVisible(!visible)
-      }
-  
-    function isPasswordShown() {
-    if (visible){
-        return secureTextEntry;
-    }
     }
 
     function createUser(userName, userPassword) {
-        if(name.length > 0 && password.length > 0){
-          //newUserName(userName)
-          //setSubmitted(!submitted);
-          console.log(`User Name: ${userName}`)
-          console.log(`Password: ${userPassword}`)
-          navigation.navigate('Login');
+        if(userName.includes('@') === false && userName.includes('.') === false){
+            if(name.length > 0 && password.length > 5){
+                createUserWithEmailAndPassword(auth, userName.replace(/ /g, '') + '@navi.com', userPassword)
+                    .then((userCredential) => {
+                        var user = userCredential.user;
+                        Alert.alert('Success' ,`User ${userName} created successfully`, [{text: 'OK'}])
+                        navigation.navigate('Login');
+                    })
+                    .catch((error) => {
+                        var errorCode = error.code;
+                        var errorMessage = error.message;
+                        Alert.alert('Error', errorMessage, [{text: 'OK'}])
+                    });
+                
+            }else{
+                Alert.alert('Warning','You must put a valid name and password to continue (@ and . are not allowed)', [
+                {text: 'OK'}
+                ])
+            }
         }else{
-          Alert.alert('Warning','You must put a valid name and password to continue', [
-            {text: 'OK'}
-          ])
+            Alert.alert('Warning','You must put a valid name and password to continue (@ and . are not allowed)', [
+                {text: 'OK'}
+                ])
         }
-      }
+        
+    }
 
     return (
         <ImageBackground source={require("../../assets/CleanBackground.png")} resizeMode="stretch" style={styles.background}>
@@ -67,7 +91,7 @@ export default function Register() {
                         onChangeText={(value) => setPassword(value)}
                         maxLength={25}
                         autoCorrect={false}
-                        secureTextEntry
+                        secureTextEntry={visible}
                     />
                     {visible ? 
                     <Text onPress={()=>{isVisible()}}>Show Password</Text>
