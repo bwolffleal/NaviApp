@@ -3,6 +3,9 @@ import { ImageBackground, Text, View, TouchableOpacity, Alert } from 'react-nati
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
+import { getAuth, signOut } from 'firebase/auth';
+import { initializeApp } from 'firebase/app';
+
 import ContactsList from '../../services/sqlite/Contacts';
 import ChatsList from '../../services/sqlite/Chat';
 import MessagesList from '../../services/sqlite/Messages';
@@ -17,12 +20,29 @@ export default function Configurations() {
     const [deleteTab, setDeleteTab] = useState(false);
     const [userName, setUserName] = useState('');
 
+    var firebaseConfig = {
+        apiKey: "AIzaSyBrn8PcNGwMuMC3GTs9S75cWZwlAfQVoqg",
+        authDomain: "naviapp-48f99.firebaseapp.com",
+        projectId: "naviapp-48f99",
+        storageBucket: "naviapp-48f99.appspot.com",
+        messagingSenderId: "824854218169",
+        appId: "1:824854218169:web:a03fd81e56d01f42352268"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
     function navigateBack() {
         navigation.goBack();
     }
 
     function navigateToLogin() {
-        navigation.navigate('Login');
+        signOut(auth).then(() => {
+            Alert.alert('Logged Out', 'You have been logged out successfully', [{text: 'OK'}])
+            navigation.navigate('Login');
+        }).catch((error) => {
+            Alert.alert('Error', `There was an error logging out: ${error}`, [{text: 'OK'}])
+        })
     }
 
     function handleNameTab() {

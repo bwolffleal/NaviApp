@@ -1,10 +1,11 @@
 import { React, useState } from "react";
-import { ImageBackground, View, KeyboardAvoidingView, Image, Text, TouchableOpacity, TextInput, Alert } from "react-native";
+import { ImageBackground, View, KeyboardAvoidingView, Image, Text, TouchableOpacity, TextInput } from "react-native";
 import { useNavigation } from '@react-navigation/native';
+//import fb from '../../services/firebase/firebase';
+import styles from './styles';
+
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import styles from './styles'
 
 export default function Register() {
     
@@ -23,7 +24,6 @@ export default function Register() {
     };
 
     const app = initializeApp(firebaseConfig);
-    const fdb = getFirestore(app)
     const auth = getAuth(app);
     
     function navigateBack() {
@@ -36,7 +36,7 @@ export default function Register() {
 
     function createUser(userName, userPassword) {
         if(userName.includes('@') === false && userName.includes('.') === false){
-            if(name.length > 0 && password.length > 5){
+            if(userName.length > 0 && userPassword.length > 5){
                 createUserWithEmailAndPassword(auth, userName.replace(/ /g, '') + '@navi.com', userPassword)
                     .then((userCredential) => {
                         var user = userCredential.user;
@@ -59,7 +59,6 @@ export default function Register() {
                 {text: 'OK'}
                 ])
         }
-        
     }
 
     return (

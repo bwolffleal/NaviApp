@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Text, ImageBackground, TextInput, Image, Alert, TouchableOpacity, KeyboardAvoidingView, Platform, View } from 'react-native';
+import { Text, ImageBackground, TextInput, Image, TouchableOpacity, KeyboardAvoidingView, Platform, View, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+//import fb from '../../services/firebase/firebase';
+import uuid from 'react-native-uuid';
+
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import uuid from 'react-native-uuid';
 
 import Contacts from '../../services/sqlite/Contacts';
 import Chats from '../../services/sqlite/Chat';
@@ -18,7 +19,7 @@ export default function Login() {
   const navigation = useNavigation();
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  //const [submitted, setSubmitted] = useState(false);
   const [visible, setVisible] = useState(true);
   //const [contactID, setContactID] = useState('');
   //const [contactName, setContactName] = useState('');
@@ -34,29 +35,28 @@ export default function Login() {
   };
 
   const app = initializeApp(firebaseConfig);
-  const fdb = getFirestore(app)
   const auth = getAuth(app);
 
   function navigateToContacts(userName, userPassword) {
-    if(name.length > 0 && password.length > 5){
+    if(userName.length > 0 && userPassword.length > 5){
       signInWithEmailAndPassword(auth, userName.replace(/ /g, '') + '@navi.com', userPassword)
-        .then((userCredential) => {
-            var user = userCredential.user;
-            Alert.alert('Success' ,`Logged in as ${userName}`, [{text: 'OK'}])
-            newUserName(userName)
-            setSubmitted(!submitted);
-            navigation.navigate('Contacts', {userName});
-        })
-        .catch((error) => {
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            Alert.alert('Error', errorMessage, [{text: 'OK'}])
-        });
+          .then((userCredential) => {
+                  var user = userCredential.user;
+                  Alert.alert('Success' ,`Logged in as ${userName}`, [{text: 'OK'}])
+                  //setSubmitted(!submitted);
+                  navigation.navigate('Contacts', {userName});
+          })
+          .catch((error) => {
+                  var errorCode = error.code;
+                  var errorMessage = error.message;
+                  Alert.alert('Log in failed', 'Wrong credentials', [{text: 'OK'}])
+          });
     }else{
-      Alert.alert('Warning','You must put a valid name and password to continue', [
-        {text: 'OK'}
-      ])
+        Alert.alert('Warning','You must put a valid name and password to continue', [
+            {text: 'OK'}
+        ])
     }
+    newUserName(userName)
   }
 
   function navigateToRegister() {
