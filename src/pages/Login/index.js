@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Text, ImageBackground, TextInput, Image, TouchableOpacity, KeyboardAvoidingView, Platform, View, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-//import fb from '../../services/firebase/firebase';
+import fb from '../../services/firebase/firebase';
 import uuid from 'react-native-uuid';
 
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { initializeApp } from 'firebase/app';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 import Contacts from '../../services/sqlite/Contacts';
 import Chats from '../../services/sqlite/Chat';
@@ -25,32 +24,14 @@ export default function Login() {
   //const [contactName, setContactName] = useState('');
   //const [contactPicture, setContactPicture] = useState('');
 
-  var firebaseConfig = {
-    apiKey: "AIzaSyBrn8PcNGwMuMC3GTs9S75cWZwlAfQVoqg",
-    authDomain: "naviapp-48f99.firebaseapp.com",
-    projectId: "naviapp-48f99",
-    storageBucket: "naviapp-48f99.appspot.com",
-    messagingSenderId: "824854218169",
-    appId: "1:824854218169:web:a03fd81e56d01f42352268"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-
   function navigateToContacts(userName, userPassword) {
     if(userName.length > 0 && userPassword.length > 5){
-      signInWithEmailAndPassword(auth, userName.replace(/ /g, '') + '@navi.com', userPassword)
-          .then((userCredential) => {
-                  var user = userCredential.user;
-                  Alert.alert('Success' ,`Logged in as ${userName}`, [{text: 'OK'}])
-                  //setSubmitted(!submitted);
-                  navigation.navigate('Contacts', {userName});
-          })
-          .catch((error) => {
-                  var errorCode = error.code;
-                  var errorMessage = error.message;
-                  Alert.alert('Log in failed', 'Wrong credentials', [{text: 'OK'}])
-          });
+      fb.loginUser(userName, userPassword)
+      onAuthStateChanged(getAuth(), (user) =>{
+        if(user) {
+          navigation.navigate('Contacts', {userName});
+        }
+      })
     }else{
         Alert.alert('Warning','You must put a valid name and password to continue', [
             {text: 'OK'}

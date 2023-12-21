@@ -1,6 +1,6 @@
 import { React, useState, useEffect, useCallback } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
-import { ImageBackground, Text, View, Image, TouchableOpacity, TextInput } from 'react-native';
+import { ImageBackground, Text, View, Image, TouchableOpacity, TextInput, ActivityIndicatorComponent } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
@@ -23,7 +23,6 @@ export default function Contacts({route}) {
     const { userName } = route.params;
     let participantsNav = [];
 
-
     function handleContactList() {
         ChatsList.allChat()
             .then( contact => setcontactData(contact) )
@@ -35,6 +34,9 @@ export default function Contacts({route}) {
     //useEffect(() => handleContactList(), [])
     //useEffect(() => console.log(contactData), [])
     useEffect(() => handleContactSearch(name), [name])
+    // useEffect(() => {
+    //     updateCurrentUser({ emailVerified: true })
+    // }, [])
     //useEffect(() => navigateToChat(chatData), [paramChange])
 
     function handleContactSearch(contactName) {

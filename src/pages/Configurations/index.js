@@ -3,8 +3,7 @@ import { ImageBackground, Text, View, TouchableOpacity, Alert } from 'react-nati
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
-import { getAuth, signOut } from 'firebase/auth';
-import { initializeApp } from 'firebase/app';
+import { getAuth, signOut, updateEmail, onAuthStateChanged } from 'firebase/auth';
 
 import ContactsList from '../../services/sqlite/Contacts';
 import ChatsList from '../../services/sqlite/Chat';
@@ -20,17 +19,7 @@ export default function Configurations() {
     const [deleteTab, setDeleteTab] = useState(false);
     const [userName, setUserName] = useState('');
 
-    var firebaseConfig = {
-        apiKey: "AIzaSyBrn8PcNGwMuMC3GTs9S75cWZwlAfQVoqg",
-        authDomain: "naviapp-48f99.firebaseapp.com",
-        projectId: "naviapp-48f99",
-        storageBucket: "naviapp-48f99.appspot.com",
-        messagingSenderId: "824854218169",
-        appId: "1:824854218169:web:a03fd81e56d01f42352268"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    const auth = getAuth();
 
     function navigateBack() {
         navigation.goBack();
@@ -39,9 +28,13 @@ export default function Configurations() {
     function navigateToLogin() {
         signOut(auth).then(() => {
             Alert.alert('Logged Out', 'You have been logged out successfully', [{text: 'OK'}])
-            navigation.navigate('Login');
         }).catch((error) => {
             Alert.alert('Error', `There was an error logging out: ${error}`, [{text: 'OK'}])
+        })
+        onAuthStateChanged(getAuth(), (user) =>{
+            if(!user) {
+                navigation.navigate('Login');
+            }
         })
     }
 
@@ -54,11 +47,18 @@ export default function Configurations() {
     }
     
     function handleNameChange(userName) {
-        if(userName.length > 0){
-            newUserName(userName)
-            navigation.navigate('Contacts', {userName});
+        if(userName.length > 0 && userName.includes('@') === false && userName.includes('.') === false){
+            updateEmail(auth.currentUser, userName.replace(/ /g, '') + '@navi.com')
+            .then(() => {
+                Alert.alert('Name Changed', `Your name has been changed to: ${userName}`, [{text: 'OK'}])
+                newUserName(userName)
+                navigation.navigate('Contacts', {userName});
+            })
+            .catch((error) => {
+                Alert.alert('Error', `There was an error while changing name: ${error}`, [{text: 'OK'}])
+            })
         }else{
-            Alert.alert('Warning','You must put a name to continue', [
+            Alert.alert('Warning','You must put a valid name to continue', [
               {text: 'OK'}
             ])
         }

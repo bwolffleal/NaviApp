@@ -1,11 +1,10 @@
 import { React, useState } from "react";
-import { ImageBackground, View, KeyboardAvoidingView, Image, Text, TouchableOpacity, TextInput } from "react-native";
+import { ImageBackground, View, KeyboardAvoidingView, Image, Text, TouchableOpacity, TextInput, Alert } from "react-native";
 import { useNavigation } from '@react-navigation/native';
-//import fb from '../../services/firebase/firebase';
+import fb from '../../services/firebase/firebase';
 import styles from './styles';
 
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { initializeApp } from 'firebase/app';
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 
 export default function Register() {
     
@@ -13,18 +12,6 @@ export default function Register() {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [visible, setVisible] = useState(true);
-
-    var firebaseConfig = {
-        apiKey: "AIzaSyBrn8PcNGwMuMC3GTs9S75cWZwlAfQVoqg",
-        authDomain: "naviapp-48f99.firebaseapp.com",
-        projectId: "naviapp-48f99",
-        storageBucket: "naviapp-48f99.appspot.com",
-        messagingSenderId: "824854218169",
-        appId: "1:824854218169:web:a03fd81e56d01f42352268"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     
     function navigateBack() {
         navigation.goBack();
@@ -35,27 +22,22 @@ export default function Register() {
     }
 
     function createUser(userName, userPassword) {
-        if(userName.includes('@') === false && userName.includes('.') === false){
-            if(userName.length > 0 && userPassword.length > 5){
-                createUserWithEmailAndPassword(auth, userName.replace(/ /g, '') + '@navi.com', userPassword)
-                    .then((userCredential) => {
-                        var user = userCredential.user;
-                        Alert.alert('Success' ,`User ${userName} created successfully`, [{text: 'OK'}])
+        if(userName.includes('@') === false && userName.includes('.') === false && userName.length !== 0){
+            if(userPassword.length > 5){
+                fb.registerUser(userName, userPassword)
+                onAuthStateChanged(getAuth(), (user) =>{
+                    if(user) {
+                        signOut(getAuth()).then(() => {}).catch((error) => {})
                         navigation.navigate('Login');
-                    })
-                    .catch((error) => {
-                        var errorCode = error.code;
-                        var errorMessage = error.message;
-                        Alert.alert('Error', errorMessage, [{text: 'OK'}])
-                    });
-                
+                    }
+                })
             }else{
-                Alert.alert('Warning','You must put a valid name and password to continue (@ and . are not allowed)', [
+                Alert.alert('Warning','Your password must be at least 6 characters long', [
                 {text: 'OK'}
                 ])
             }
         }else{
-            Alert.alert('Warning','You must put a valid name and password to continue (@ and . are not allowed)', [
+            Alert.alert('Warning','You must put a valid name and password to continue (names with @ and . are not allowed)', [
                 {text: 'OK'}
                 ])
         }
