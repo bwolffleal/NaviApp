@@ -33,7 +33,10 @@ export default function Configurations() {
         })
         onAuthStateChanged(getAuth(), (user) =>{
             if(!user) {
-                navigation.navigate('Login');
+                if(navigation.canGoBack()){
+                    navigation.popToTop();
+                }
+                navigation.replace('Login');
             }
         })
     }

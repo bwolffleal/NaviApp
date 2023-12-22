@@ -28,7 +28,10 @@ export default function Register() {
                 onAuthStateChanged(getAuth(), (user) =>{
                     if(user) {
                         signOut(getAuth()).then(() => {}).catch((error) => {})
-                        navigation.navigate('Login');
+                        if(navigation.canGoBack()){
+                            navigation.pop(1);
+                        }
+                        navigation.replace('Login');
                     }
                 })
             }else{

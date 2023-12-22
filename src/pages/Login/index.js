@@ -29,7 +29,7 @@ export default function Login() {
       fb.loginUser(userName, userPassword)
       onAuthStateChanged(getAuth(), (user) =>{
         if(user) {
-          navigation.navigate('Contacts', {userName});
+          navigation.replace('Contacts', {userName});
         }
       })
     }else{
